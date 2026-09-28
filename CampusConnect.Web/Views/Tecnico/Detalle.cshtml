@@ -1,0 +1,79 @@
+@using CampusConnect.Core.DTOs
+@using CampusConnect.Core.Enums
+@model SolicitudResponseDto
+@{
+    ViewData["Title"] = "Detalle Solicitud — Técnico";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-tools me-2 text-primary"></i>Solicitud #@Model.Id</h4>
+    <a asp-controller="Tecnico" asp-action="MisSolicitudes" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header fw-bold bg-dark text-white"><i class="bi bi-info-circle me-2"></i>Detalles</div>
+            <div class="card-body small">
+                <dl class="row mb-0">
+                    <dt class="col-5">Estado</dt><dd class="col-7"><span class="badge badge-@Model.Estado">@Model.Estado</span></dd>
+                    <dt class="col-5">Prioridad</dt><dd class="col-7"><span class="badge badge-@Model.Prioridad">@Model.Prioridad</span></dd>
+                    <dt class="col-5">Estudiante</dt><dd class="col-7">@Model.EstudianteNombre</dd>
+                </dl>
+                <hr /><p class="text-muted">@Model.Descripcion</p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header fw-bold bg-primary text-white"><i class="bi bi-pencil me-2"></i>Actualizar Estado</div>
+            <div class="card-body">
+                <form asp-controller="Tecnico" asp-action="ActualizarEstado" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Nuevo Estado</label>
+                        <select name="Estado" class="form-select form-select-sm">
+                            @foreach (var e in Enum.GetValues<EstadoSolicitud>())
+                            {
+                                <option value="@((int)e)" selected="@(Model.Estado == e.ToString())">@e</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Comentario</label>
+                        <textarea name="Comentario" class="form-control form-control-sm" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-save me-1"></i>Guardar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header fw-bold"><i class="bi bi-clock-history me-2"></i>Historial</div>
+            <div class="card-body">
+                <div class="timeline">
+                    @foreach (var sg in Model.Seguimientos.OrderByDescending(s => s.Fecha))
+                    {
+                        <div class="timeline-item">
+                            <div class="timeline-icon"><i class="bi bi-chat-left"></i></div>
+                            <div class="card bg-light">
+                                <div class="card-body py-2 px-3">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="small">@sg.AutorNombre</strong>
+                                        <span class="text-muted small">@sg.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+                                    <p class="mb-0 small mt-1">@sg.Comentario</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

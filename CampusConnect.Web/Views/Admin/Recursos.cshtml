@@ -1,0 +1,156 @@
+@using CampusConnect.Core.DTOs
+@using CampusConnect.Core.Enums
+@model List<RecursoResponseDto>
+@{
+    ViewData["Title"] = "Gestión de Recursos";
+    var categorias = (CategoriaRecurso[])ViewBag.Categorias;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-box-seam me-2 text-primary"></i>Recursos Institucionales</h4>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+        <i class="bi bi-plus-circle me-1"></i>Nuevo Recurso
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover datatable mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th><th>Nombre</th><th>Categoría</th><th>Estado</th><th>Solicitudes</th><th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.Id</td>
+                        <td>@r.Nombre</td>
+                        <td><span class="badge text-bg-secondary">@r.Categoria</span></td>
+                        <td>
+                            <span class="badge @(r.Estado == "Disponible" ? "text-bg-success" : "text-bg-warning")">@r.Estado</span>
+                        </td>
+                        <td>@r.TotalSolicitudes</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="cargarEditar(@r.Id, '@r.Nombre', @((int)(Enum.Parse<CategoriaRecurso>(r.Categoria))), '@r.Estado', '@(r.Detalles ?? "")')"
+                                    data-bs-toggle="modal" data-bs-target="#modalEditar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar(@r.Id, '@r.Nombre')"
+                                    data-bs-toggle="modal" data-bs-target="#modalEliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Crear -->
+<div class="modal fade" id="modalCrear" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Admin" asp-action="CrearRecurso" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nuevo Recurso</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @await Html.PartialAsync("_RecursoForm", new RecursoResponseDto(), new ViewDataDictionary(ViewData) { { "Categorias", categorias } })
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="modalEditar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Admin" asp-action="EditarRecurso" method="post" id="formEditar">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="editId" />
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar Recurso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre</label>
+                        <input name="Nombre" id="editNombre" class="form-control" required maxlength="200" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Categoría</label>
+                        <select name="Categoria" id="editCategoria" class="form-select">
+                            @foreach (var c in categorias)
+                            {
+                                <option value="@((int)c)">@c</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <input name="Estado" id="editEstado" class="form-control" required maxlength="100" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Detalles</label>
+                        <textarea name="Detalles" id="editDetalles" class="form-control" rows="3" maxlength="1000"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning"><i class="bi bi-save me-1"></i>Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form asp-controller="Admin" asp-action="EliminarRecurso" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="eliminarId" />
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-trash me-2"></i>Confirmar</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Eliminar el recurso <strong id="eliminarNombre"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function cargarEditar(id, nombre, categoria, estado, detalles) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editNombre').value = nombre;
+        document.getElementById('editCategoria').value = categoria;
+        document.getElementById('editEstado').value = estado;
+        document.getElementById('editDetalles').value = detalles;
+        document.getElementById('formEditar').action = `/Admin/EditarRecurso/${id}`;
+    }
+    function confirmarEliminar(id, nombre) {
+        document.getElementById('eliminarId').value = id;
+        document.getElementById('eliminarNombre').textContent = nombre;
+        document.getElementById('formEliminar') && (document.getElementById('formEliminar').action = `/Admin/EliminarRecurso/${id}`);
+    }
+</script>
+}

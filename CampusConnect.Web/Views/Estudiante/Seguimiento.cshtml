@@ -1,0 +1,138 @@
+@using CampusConnect.Core.DTOs
+@model SolicitudResponseDto
+@{
+    ViewData["Title"] = "Seguimiento — " + Model?.Titulo;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Seguimiento de Solicitud #@Model?.Id</h4>
+    <a asp-controller="Estudiante" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+</div>
+
+@if (Model == null)
+{
+    <div class="alert alert-warning">Solicitud no encontrada.</div>
+    return;
+}
+
+<div class="row g-4">
+    <!-- Detalles -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header fw-bold bg-primary text-white">
+                <i class="bi bi-info-circle me-2"></i>Detalles
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5">Estado</dt>
+                    <dd class="col-7"><span class="badge badge-@Model.Estado rounded-pill">@Model.Estado</span></dd>
+                    <dt class="col-5">Prioridad</dt>
+                    <dd class="col-7"><span class="badge badge-@Model.Prioridad rounded-pill">@Model.Prioridad</span></dd>
+                    <dt class="col-5">Responsable</dt>
+                    <dd class="col-7">@(Model.ResponsableNombre ?? "Sin asignar")</dd>
+                    <dt class="col-5">Recurso</dt>
+                    <dd class="col-7">@(Model.RecursoNombre ?? "—")</dd>
+                    <dt class="col-5">Creada</dt>
+                    <dd class="col-7">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+                    <dt class="col-5">Actualizada</dt>
+                    <dd class="col-7">@Model.FechaActualizacion.ToString("dd/MM/yyyy HH:mm")</dd>
+                </dl>
+                <hr />
+                <h6 class="fw-semibold">Descripción</h6>
+                <p class="text-muted small">@Model.Descripcion</p>
+            </div>
+        </div>
+
+        <!-- Evidencias -->
+        <div class="card mt-3">
+            <div class="card-header fw-bold">
+                <i class="bi bi-paperclip me-2"></i>Evidencias (@Model.Evidencias.Count)
+            </div>
+            <div class="card-body p-2">
+                @if (!Model.Evidencias.Any())
+                {
+                    <p class="text-muted small text-center py-2">Sin evidencias adjuntas.</p>
+                }
+                else
+                {
+                    @foreach (var e in Model.Evidencias)
+                    {
+                        <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light rounded">
+                            @if (e.TipoContenido.StartsWith("image/"))
+                            {
+                                <img src="@e.RutaArchivo" class="rounded" style="width:50px;height:50px;object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <i class="bi bi-file-pdf text-danger fs-3"></i>
+                            }
+                            <div class="small">
+                                <a href="@e.RutaArchivo" target="_blank" class="text-decoration-none">Ver archivo</a>
+                                <div class="text-muted">@e.FechaSubida.ToString("dd/MM/yy HH:mm")</div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                @if (Model.Estado != "Cerrada")
+                {
+                    <form asp-controller="Estudiante" asp-action="SubirEvidencia" method="post"
+                          enctype="multipart/form-data" class="mt-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="solicitudId" value="@Model.Id" />
+                        <input type="file" name="archivo" class="form-control form-control-sm mb-2"
+                               accept="image/jpeg,image/png,image/gif,application/pdf" />
+                        <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                            <i class="bi bi-upload me-1"></i>Subir Evidencia
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline de seguimiento -->
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header fw-bold">
+                <i class="bi bi-activity me-2"></i>Historial de Seguimiento
+            </div>
+            <div class="card-body">
+                @if (!Model.Seguimientos.Any())
+                {
+                    <p class="text-muted text-center py-4">No hay entradas de seguimiento aún.</p>
+                }
+                else
+                {
+                    <div class="timeline">
+                        @foreach (var sg in Model.Seguimientos.OrderByDescending(s => s.Fecha))
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-icon"><i class="bi bi-chat-left"></i></div>
+                                <div class="card bg-light">
+                                    <div class="card-body py-2 px-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <strong class="small">@sg.AutorNombre</strong>
+                                            <span class="text-muted small">@sg.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                                        </div>
+                                        @if (sg.EstadoAnterior != null && sg.EstadoNuevo != null)
+                                        {
+                                            <div class="my-1">
+                                                <span class="badge badge-@sg.EstadoAnterior text-bg-secondary">@sg.EstadoAnterior</span>
+                                                <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                                                <span class="badge badge-@sg.EstadoNuevo">@sg.EstadoNuevo</span>
+                                            </div>
+                                        }
+                                        <p class="mb-0 small mt-1">@sg.Comentario</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,25 @@
+## Archivos de compilación
+**/bin/
+**/obj/
+*.user
+.vs/
+
+## Archivos de configuración local
+appsettings.Development.json
+**/appsettings.Local.json
+
+## Uploads generados por el sistema
+**/wwwroot/uploads/
+
+## dotnet
+*.dll
+*.pdb
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Rider / VS
+.idea/
+*.suo
+*.ncrunch*

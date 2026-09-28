@@ -1,0 +1,84 @@
+@model CampusConnect.Core.DTOs.LoginDto
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Connect — Iniciar Sesión</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <style>
+        body { background: linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%); min-height:100vh; display:flex; align-items:center; }
+        .card { border-radius: 1rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="text-center mb-4">
+                <i class="bi bi-mortarboard-fill text-white" style="font-size:3rem;"></i>
+                <h2 class="text-white fw-bold mt-2">Campus Connect</h2>
+                <p class="text-white-50">Sistema de Gestión de Solicitudes Universitarias</p>
+            </div>
+            <div class="card shadow-lg">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4 fw-bold"><i class="bi bi-person-lock me-2 text-primary"></i>Iniciar Sesión</h5>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <div><i class="bi bi-exclamation-circle me-1"></i>@error.ErrorMessage</div>
+                            }
+                        </div>
+                    }
+
+                    <form asp-controller="Auth" asp-action="Login" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label fw-semibold">Correo Electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Correo" class="form-control" placeholder="correo@universidad.edu" autocomplete="email" />
+                            </div>
+                            <span asp-validation-for="Correo" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label fw-semibold">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" class="form-control" type="password" placeholder="••••••••" autocomplete="current-password" />
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePwd(this)"><i class="bi bi-eye"></i></button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-box-arrow-in-right me-2"></i>Ingresar</button>
+                        </div>
+                    </form>
+                    <hr />
+                    <p class="text-center mb-0 small">¿No tienes cuenta? <a asp-controller="Auth" asp-action="Register">Regístrate aquí</a></p>
+                </div>
+            </div>
+            <p class="text-center text-white-50 mt-3 small">
+                <strong>Demo:</strong> admin@campusconnect.edu / Admin@123
+            </p>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function togglePwd(btn) {
+        const input = btn.previousElementSibling;
+        input.type = input.type === 'password' ? 'text' : 'password';
+        btn.querySelector('i').className = input.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+    }
+</script>
+</body>
+</html>
