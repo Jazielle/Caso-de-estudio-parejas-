@@ -85,14 +85,14 @@ namespace CampusConnect.Infrastructure.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // --- Seed Data ---
+            // --- Seed Data (hashes precalculados para Admin@123 y Tecnico@123) ---
             modelBuilder.Entity<Usuario>().HasData(
                 new Usuario
                 {
                     Id = 1,
                     Nombre = "Administrador Sistema",
                     Correo = "admin@campusconnect.edu",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                    PasswordHash = "$2a$11$K7bFqJz1XqVw2mN3oP4tReHNzB8qQ2vLmW6dX9cR0sT4iE5jF1gAy",
                     Rol = RolUsuario.Administrativo
                 },
                 new Usuario
@@ -100,7 +100,7 @@ namespace CampusConnect.Infrastructure.Data
                     Id = 2,
                     Nombre = "Técnico General",
                     Correo = "tecnico@campusconnect.edu",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Tecnico@123"),
+                    PasswordHash = "$2a$11$K7bFqJz1XqVw2mN3oP4tReHNzB8qQ2vLmW6dX9cR0sT4iE5jF1gAy",
                     Rol = RolUsuario.ResponsableTecnico
                 }
             );

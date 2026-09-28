@@ -13,9 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ===================== SERVICIOS =====================
 
-// EF Core + PostgreSQL
+// EF Core + SQLite (demo sin PostgreSQL)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite("Data Source=campusconnect.db"));
 
 // Inyección de servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
